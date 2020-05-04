@@ -18,7 +18,6 @@ package com.example.android.codelabs.paging.ui
 
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -29,6 +28,7 @@ import com.example.android.codelabs.paging.Injection
 import com.example.android.codelabs.paging.databinding.ActivitySearchRepositoriesBinding
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -83,33 +83,33 @@ class SearchRepositoriesActivity : AppCompatActivity() {
         )
     }
 
-private fun initSearch(query: String) {
-    binding.searchRepo.setText(query)
+    private fun initSearch(query: String) {
+        binding.searchRepo.setText(query)
 
-    binding.searchRepo.setOnEditorActionListener { _, actionId, _ ->
-        if (actionId == EditorInfo.IME_ACTION_GO) {
-            updateRepoListFromInput()
-            true
-        } else {
-            false
+        binding.searchRepo.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_GO) {
+                updateRepoListFromInput()
+                true
+            } else {
+                false
+            }
         }
-    }
-    binding.searchRepo.setOnKeyListener { _, keyCode, event ->
-        if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-            updateRepoListFromInput()
-            true
-        } else {
-            false
+        binding.searchRepo.setOnKeyListener { _, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                updateRepoListFromInput()
+                true
+            } else {
+                false
+            }
         }
-    }
 
-    lifecycleScope.launch {
-        @OptIn(ExperimentalPagingApi::class)
-        adapter.dataRefreshFlow.collect {
-            binding.list.scrollToPosition(0)
+        lifecycleScope.launch {
+            @OptIn(ExperimentalPagingApi::class)
+            adapter.dataRefreshFlow.collect {
+                binding.list.scrollToPosition(0)
+            }
         }
     }
-}
 
     private fun updateRepoListFromInput() {
         binding.searchRepo.text.trim().let {
